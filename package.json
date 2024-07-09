@@ -1,0 +1,23 @@
+{
+  "name": "svelte-demo",
+  "version": "1.0.0",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "dependencies": {
+    "elizabot": "^0.0.3",
+    "jsdom": "^24.1.0",
+    "svelte": "^4.2.18"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^3.1.1",
+    "vite": "^5.3.3"
+  }
+}
