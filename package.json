@@ -12,12 +12,16 @@
   "description": "",
   "type": "module",
   "dependencies": {
-    "elizabot": "^0.0.3",
-    "jsdom": "^24.1.0",
     "svelte": "^4.2.18"
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.39",
     "@sveltejs/vite-plugin-svelte": "^3.1.1",
+    "cssnano": "^7.0.4",
+    "cssnano-preset-advanced": "^7.0.4",
+    "daisyui": "^4.12.10",
+    "tailwindcss": "^3.4.4",
     "vite": "^5.3.3"
   }
 }
