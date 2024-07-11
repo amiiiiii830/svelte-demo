@@ -2,23 +2,30 @@ import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 export default defineConfig({
-  plugins: [svelte()],
+  // plugins: [svelte()],
+  plugins: [
+    svelte({
+      compilerOptions: {
+        dev: false,
+        css: false,
+      },
+    }),
+  ],
   build: {
     minify: false,
-    sourcemap: true,
+    sourcemap: false,
     rollupOptions: {
       treeshake: {
-        // moduleSideEffects: [
-        //   "tailwindcss",
-        //   "cssnano",
-        //   "postcss",
-        //   "cssnano-preset-advanced",
-        // ], // Assume no side effects in modules
-        // moduleSideEffects: "some", // Assume no side effects in modules
+        // moduleSideEffects: ["tailwindcss", "svelte"], // Assume no side effects in modules
+        // moduleSideEffects: false, // Assume no side effects in modules
         propertyReadSideEffects: false, // Ignore property read side effects
         tryCatchDeoptimization: false, // Ignore try-catch deoptimizations
       },
     },
+    // output: {
+    //   format: "esm",
+    //   compact: true,
+    // },
     commonjsOptions: {
       include: /node_modules/,
       transformMixedEsModules: true,

@@ -58,6 +58,9 @@ function safe_not_equal(a, b) {
 function is_empty(obj) {
   return Object.keys(obj).length === 0;
 }
+function append(target, node) {
+  target.appendChild(node);
+}
 function insert(target, node, anchor) {
   target.insertBefore(node, anchor || null);
 }
@@ -75,11 +78,19 @@ function text(data) {
 function space() {
   return text(" ");
 }
+function listen(node, event, handler, options) {
+  node.addEventListener(event, handler, options);
+  return () => node.removeEventListener(event, handler, options);
+}
 function attr(node, attribute, value) {
-  if (node.getAttribute(attribute) !== value) node.setAttribute(attribute, value);
+  if (value == null) node.removeAttribute(attribute);
+  else if (node.getAttribute(attribute) !== value) node.setAttribute(attribute, value);
 }
 function children(element2) {
   return Array.from(element2.childNodes);
+}
+function toggle_class(element2, name, toggle) {
+  element2.classList.toggle(name, !!toggle);
 }
 let current_component;
 function set_current_component(component) {
@@ -89,6 +100,14 @@ const dirty_components = [];
 const binding_callbacks = [];
 let render_callbacks = [];
 const flush_callbacks = [];
+const resolved_promise = /* @__PURE__ */ Promise.resolve();
+let update_scheduled = false;
+function schedule_update() {
+  if (!update_scheduled) {
+    update_scheduled = true;
+    resolved_promise.then(flush);
+  }
+}
 function add_render_callback(fn) {
   render_callbacks.push(fn);
 }
@@ -128,6 +147,7 @@ function flush() {
   while (flush_callbacks.length) {
     flush_callbacks.pop()();
   }
+  update_scheduled = false;
   seen_callbacks.clear();
   set_current_component(saved_component);
 }
@@ -179,7 +199,15 @@ function destroy_component(component, detaching) {
     $$.ctx = [];
   }
 }
-function init(component, options, instance, create_fragment2, not_equal, props, append_styles = null, dirty = [-1]) {
+function make_dirty(component, i) {
+  if (component.$$.dirty[0] === -1) {
+    dirty_components.push(component);
+    schedule_update();
+    component.$$.dirty.fill(0);
+  }
+  component.$$.dirty[i / 31 | 0] |= 1 << i % 31;
+}
+function init(component, options, instance2, create_fragment2, not_equal, props, append_styles = null, dirty = [-1]) {
   const parent_component = current_component;
   set_current_component(component);
   const $$ = component.$$ = {
@@ -204,8 +232,17 @@ function init(component, options, instance, create_fragment2, not_equal, props, 
     root: options.target || parent_component.$$.root
   };
   append_styles && append_styles($$.root);
-  $$.ctx = [];
+  let ready = false;
+  $$.ctx = instance2 ? instance2(component, options.props || {}, (i, ret, ...rest) => {
+    const value = rest.length ? rest[0] : ret;
+    if ($$.ctx && not_equal($$.ctx[i], $$.ctx[i] = value)) {
+      if (!$$.skip_bound && $$.bound[i]) $$.bound[i](value);
+      if (ready) make_dirty(component, i);
+    }
+    return ret;
+  }) : [];
   $$.update();
+  ready = true;
   run_all($$.before_update);
   $$.fragment = create_fragment2 ? create_fragment2($$.ctx) : false;
   if (options.target) {
@@ -279,53 +316,130 @@ const PUBLIC_VERSION = "4";
 if (typeof window !== "undefined")
   (window.__svelte || (window.__svelte = { v: /* @__PURE__ */ new Set() })).v.add(PUBLIC_VERSION);
 function create_fragment(ctx) {
-  let div2;
-  let t4;
-  let div5;
-  let t9;
-  let div8;
+  let div;
+  let button;
+  let span0;
+  let t1;
+  let span1;
+  let mounted;
+  let dispose;
   return {
     c() {
-      div2 = element("div");
-      div2.innerHTML = `<input type="radio" name="my-accordion-1" checked="checked"/> <div class="collapse-title text-xl font-medium">Click to open this one and close others</div> <div class="collapse-content"><p>hello</p></div>`;
-      t4 = space();
-      div5 = element("div");
-      div5.innerHTML = `<input type="radio" name="my-accordion-1"/> <div class="collapse-title text-xl font-medium">Click to open this one and close others</div> <div class="collapse-content"><p>hello</p></div>`;
-      t9 = space();
-      div8 = element("div");
-      div8.innerHTML = `<input type="radio" name="my-accordion-1"/> <div class="collapse-title text-xl font-medium">Click to open this one and close others</div> <div class="collapse-content"><p>hello</p></div>`;
-      attr(div2, "class", "collapse bg-base-200");
-      attr(div5, "class", "collapse bg-base-200");
-      attr(div8, "class", "collapse bg-base-200");
+      div = element("div");
+      button = element("button");
+      span0 = element("span");
+      span0.textContent = "Use setting";
+      t1 = space();
+      span1 = element("span");
+      attr(span0, "class", "sr-only");
+      attr(span1, "aria-hidden", "true");
+      attr(span1, "class", "pointer-events-none inline-block h-[20px] w-[20px] transform rounded-full bg-white shadow ring-[0px] transition duration-[200ms] ease-in-out ");
+      toggle_class(span1, "translate-x-[0]", !/*isChecked*/
+      ctx[0]);
+      toggle_class(
+        span1,
+        "translate-x-[20px]",
+        /*isChecked*/
+        ctx[0]
+      );
+      attr(button, "type", "button");
+      attr(button, "class", "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2");
+      attr(button, "role", "switch");
+      attr(
+        button,
+        "aria-checked",
+        /*isChecked*/
+        ctx[0]
+      );
+      toggle_class(button, "bg-gray-200", !/*isChecked*/
+      ctx[0]);
+      toggle_class(
+        button,
+        "bg-indigo-600",
+        /*isChecked*/
+        ctx[0]
+      );
+      attr(div, "id", "root");
     },
     m(target, anchor) {
-      insert(target, div2, anchor);
-      insert(target, t4, anchor);
-      insert(target, div5, anchor);
-      insert(target, t9, anchor);
-      insert(target, div8, anchor);
+      insert(target, div, anchor);
+      append(div, button);
+      append(button, span0);
+      append(button, t1);
+      append(button, span1);
+      if (!mounted) {
+        dispose = listen(
+          button,
+          "click",
+          /*toggle*/
+          ctx[1]
+        );
+        mounted = true;
+      }
     },
-    p: noop,
+    p(ctx2, [dirty]) {
+      if (dirty & /*isChecked*/
+      1) {
+        toggle_class(span1, "translate-x-[0]", !/*isChecked*/
+        ctx2[0]);
+      }
+      if (dirty & /*isChecked*/
+      1) {
+        toggle_class(
+          span1,
+          "translate-x-[20px]",
+          /*isChecked*/
+          ctx2[0]
+        );
+      }
+      if (dirty & /*isChecked*/
+      1) {
+        attr(
+          button,
+          "aria-checked",
+          /*isChecked*/
+          ctx2[0]
+        );
+      }
+      if (dirty & /*isChecked*/
+      1) {
+        toggle_class(button, "bg-gray-200", !/*isChecked*/
+        ctx2[0]);
+      }
+      if (dirty & /*isChecked*/
+      1) {
+        toggle_class(
+          button,
+          "bg-indigo-600",
+          /*isChecked*/
+          ctx2[0]
+        );
+      }
+    },
     i: noop,
     o: noop,
     d(detaching) {
       if (detaching) {
-        detach(div2);
-        detach(t4);
-        detach(div5);
-        detach(t9);
-        detach(div8);
+        detach(div);
       }
+      mounted = false;
+      dispose();
     }
   };
+}
+function instance($$self, $$props, $$invalidate) {
+  let isChecked = false;
+  function toggle() {
+    $$invalidate(0, isChecked = !isChecked);
+  }
+  return [isChecked, toggle];
 }
 class App extends SvelteComponent {
   constructor(options) {
     super();
-    init(this, options, null, create_fragment, safe_not_equal, {});
+    init(this, options, instance, create_fragment, safe_not_equal, {});
   }
 }
 new App({
   target: document.getElementById("app")
 });
-//# sourceMappingURL=index-C6wwY0vv.js.map
