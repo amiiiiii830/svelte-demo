@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import purgecss from "vite-plugin-purgecss";
 
 export default defineConfig({
   // plugins: [svelte()],
@@ -10,13 +11,24 @@ export default defineConfig({
         css: false,
       },
     }),
+    // ,
+    // purgecss({
+    //   content: ["./src/**/*.html", "./src/**/*.svelte"],
+    //   // other options as needed
+    // }),
   ],
   build: {
     minify: false,
     sourcemap: false,
     rollupOptions: {
       treeshake: {
-        // moduleSideEffects: ["tailwindcss", "svelte"], // Assume no side effects in modules
+        // moduleSideEffects: [
+        //   "tailwindcss",
+        //   "cssnano",
+        //   "vite",
+        //   "svelte",
+        //   "postcss",
+        // ], // Assume no side effects in modules
         // moduleSideEffects: false, // Assume no side effects in modules
         propertyReadSideEffects: false, // Ignore property read side effects
         tryCatchDeoptimization: false, // Ignore try-catch deoptimizations
