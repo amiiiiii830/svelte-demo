@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toggle Switch</title>
+    <style>
+      .bg-indigo-600 {
+        background-color: #4f46e5;
+      }
+      .bg-gray-200 {
+        background-color: #e5e7eb;
+      }
+      .translate-x-5 {
+        transform: translateX(1.25rem);
+      } /* Equivalent to translate-x-[20px] */
+      .translate-x-0 {
+        transform: translateX(0);
+      }
+    </style>
+  </head>
+  <body>
+    <button
+      type="button"
+      class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-200 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+      role="switch"
+      aria-checked="false"
+    >
+      <span class="sr-only">Use setting</span>
+      <!-- Enabled: "translate-x-5", Not Enabled: "translate-x-0" -->
+      <span
+        aria-hidden="true"
+        class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0"
+      ></span>
+    </button>
+
+    <script>
+      // Select the button element
+      const switchButton = document.querySelector('button[role="switch"]');
+      const innerSpan = switchButton.querySelector('span[aria-hidden="true"]');
+
+      // Function to toggle classes and aria attribute
+      function toggleSwitch() {
+        const isChecked = switchButton.getAttribute("aria-checked") === "true";
+
+        // Toggle aria-checked attribute
+        switchButton.setAttribute("aria-checked", !isChecked);
+
+        // Toggle background color of button
+        if (isChecked) {
+          switchButton.classList.remove("bg-indigo-600");
+          switchButton.classList.add("bg-gray-200");
+          innerSpan.classList.remove("translate-x-5");
+          innerSpan.classList.add("translate-x-0");
+        } else {
+          switchButton.classList.remove("bg-gray-200");
+          switchButton.classList.add("bg-indigo-600");
+          innerSpan.classList.remove("translate-x-0");
+          innerSpan.classList.add("translate-x-5");
+        }
+      }
+
+      // Add click event listener to the button
+      switchButton.addEventListener("click", toggleSwitch);
+    </script>
+  </body>
+</html>
